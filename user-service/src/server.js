@@ -19,15 +19,27 @@ app.get('/', (req, res) => {
   res.send('User Service - Food Ordering App');
 });
 
-// Routes
-const authRoutes = require('./routes/auth');
-app.use('/api/auth', authRoutes);
-
 // Connect to MongoDB
-mongoose.connect(process.env.MONGO_URI || 'mongodb://localhost:27017/foodordering')
-  .then(() => console.log('✅ Connected to MongoDB'))
+mongoose.connect(process.env.MONGO_URI)
+  .then(() => {
+    console.log('✅ Connected to MongoDB');
+    
+    // Select the users database
+    const db = mongoose.connection.useDb('users_db');
+    
+    // Create models on this database
+    const User = db.model('User', require('./models/User'));
+    
+    // Set models for controllers
+    require('./db').setModels({ User });
+    
+    // Routes (after models are set)
+    const authRoutes = require('./routes/auth');
+    app.use('/api/auth', authRoutes);
+    
+    // Start server
+    app.listen(PORT, '0.0.0.0', () => {
+      console.log(`🚀 User Service running on port ${PORT}`);
+    });
+  })
   .catch(err => console.error('❌ MongoDB connection error:', err));
-
-app.listen(PORT, '0.0.0.0', () => {
-  console.log(`🚀 User Service running on port ${PORT}`);
-});

@@ -1,5 +1,4 @@
-const Restaurant = require('../models/Restaurant');
-const MenuItem = require('../models/MenuItem');
+const { Restaurant, MenuItem } = require('../db').getModels();
 const amqp = require('amqplib');
 const axios = require('axios');
 

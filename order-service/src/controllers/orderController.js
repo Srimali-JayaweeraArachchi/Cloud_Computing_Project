@@ -1,4 +1,4 @@
-const Order = require('../models/Order');
+const { Order } = require('../db').getModels();
 const axios = require('axios');
 const amqp = require('amqplib');
 

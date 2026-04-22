@@ -20,26 +20,27 @@ app.get('/', (req, res) => {
   res.send('Order Service - Food Ordering App');
 });
 
-// Routes
-const orderRoutes = require('./routes/order');
-app.use('/api/orders', orderRoutes);
-
-// Simple RabbitMQ connection (async)
-async function connectRabbitMQ() {
-  try {
-    const conn = await amqp.connect(process.env.RABBITMQ_URL || 'amqp://localhost:5672');
-    console.log('✅ Connected to RabbitMQ');
-  } catch (err) {
-    console.error('❌ RabbitMQ connection error:', err);
-  }
-}
-
-connectRabbitMQ();
-
-mongoose.connect(process.env.MONGO_URI || 'mongodb://localhost:27017/foodordering')
-  .then(() => console.log('✅ Connected to MongoDB'))
+// Connect to MongoDB
+mongoose.connect(process.env.MONGO_URI)
+  .then(() => {
+    console.log('✅ Connected to MongoDB');
+    
+    // Select the orders database
+    const db = mongoose.connection.useDb('orders_db');
+    
+    // Create models on this database
+    const Order = db.model('Order', require('./models/Order'));
+    
+    // Set models for controllers
+    require('./db').setModels({ Order });
+    
+    // Routes (after models are set)
+    const orderRoutes = require('./routes/order');
+    app.use('/api/orders', orderRoutes);
+    
+    // Start server
+    app.listen(PORT, '0.0.0.0', () => {
+      console.log(`🚀 Order Service running on port ${PORT}`);
+    });
+  })
   .catch(err => console.error('❌ MongoDB connection error:', err));
-
-app.listen(PORT, '0.0.0.0', () => {
-  console.log(`🚀 Order Service running on port ${PORT}`);
-});

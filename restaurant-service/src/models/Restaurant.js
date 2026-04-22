@@ -6,4 +6,4 @@ const restaurantSchema = new mongoose.Schema({
   isApproved: { type: Boolean, default: false },
   createdAt: { type: Date, default: Date.now }
 });
-module.exports = mongoose.model('Restaurant', restaurantSchema);
+module.exports = restaurantSchema;
