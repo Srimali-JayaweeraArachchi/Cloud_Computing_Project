@@ -37,4 +37,36 @@ const login = async (req, res) => {
   }
 };
 
-module.exports = { register, login };
+const getUsers = async (req, res) => {
+  try {
+    const users = await User.find().select('-password');
+    res.json(users);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
+const updateUserRole = async (req, res) => {
+  const { userId } = req.params;
+  const { role } = req.body;
+  try {
+    const user = await User.findByIdAndUpdate(userId, { role }, { new: true }).select('-password');
+    if (!user) return res.status(404).json({ message: 'User not found' });
+    res.json(user);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
+const verifyUser = async (req, res) => {
+  const { userId } = req.params;
+  try {
+    const user = await User.findById(userId).select('-password');
+    if (!user) return res.json({ valid: false });
+    res.json({ valid: true, user });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
+module.exports = { register, login, getUsers, updateUserRole, verifyUser };
