@@ -1,4 +1,4 @@
-name: CI/CD - Build & Deploy to AWS EC2
+name: CI/CD - Build and Deploy to AWS EC2
 
 on:
   push:
@@ -19,18 +19,23 @@ jobs:
           username: ubuntu
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
-            echo "🚀 Starting deployment at $(date)"
+            echo "🚀 Starting CI/CD Deployment at $(date)"
             cd ~/food-ordering-app
             
-            # Pull latest code
+            # Pull latest code safely
             git fetch origin
             git reset --hard origin/main
             
-            # Deploy
+            # Deploy the application
+            echo "Stopping existing containers..."
             docker compose down
+            
+            echo "Building and starting services..."
             docker compose up -d --build
             
             echo "✅ Deployment completed successfully at $(date)"
-            echo "📊 Container status:"
+            echo "📊 Current container status:"
             docker compose ps
+            echo ""
             echo "🌐 Application is live at: http://16.16.202.254"
+            echo "🐰 RabbitMQ Management: http://16.16.202.254:15672"
