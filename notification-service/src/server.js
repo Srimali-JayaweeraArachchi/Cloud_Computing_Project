@@ -7,7 +7,7 @@ const startConsumer = require('./consumer');
 dotenv.config();
 
 const app = express();
-const PORT = process.env.PORT || 3004;
+const PORT = process.env.PORT || 8004;
 
 app.use(cors());
 app.use(express.json());
