@@ -2,6 +2,9 @@ const Order = require('../models/Order');
 const axios = require('axios');
 const amqp = require('amqplib');
 
+const userServiceUrl = process.env.USER_SERVICE_URL || 'http://localhost:8001';
+const restaurantServiceUrl = process.env.RESTAURANT_SERVICE_URL || 'http://localhost:8002';
+
 const publishToNotification = async (message) => {
   try {
     const connection = await amqp.connect(process.env.RABBITMQ_URL || 'amqp://localhost:5672');
@@ -16,19 +19,55 @@ const publishToNotification = async (message) => {
   }
 };
 
+function getAxiosErrorDetails(error) {
+  if (!error.response) {
+    return null;
+  }
+
+  return {
+    status: error.response.status,
+    data: error.response.data
+  };
+}
+
+async function enrichOrdersWithRestaurantDetails(orders) {
+  const orderList = Array.isArray(orders) ? orders : [orders];
+
+  const enrichedOrders = await Promise.all(
+    orderList.map(async (orderDoc) => {
+      const order = orderDoc.toObject ? orderDoc.toObject() : orderDoc;
+
+      try {
+        const restaurantResponse = await axios.get(
+          `${restaurantServiceUrl}/api/restaurant/${order.restaurantId}`
+        );
+
+        return {
+          ...order,
+          restaurantId: restaurantResponse.data
+        };
+      } catch (error) {
+        return order;
+      }
+    })
+  );
+
+  return Array.isArray(orders) ? enrichedOrders : enrichedOrders[0];
+}
+
 const placeOrder = async (req, res) => {
   try {
     const { restaurantId, items, totalPrice } = req.body;
     const customerId = req.user.id;
 
     // Verify user exists
-    const userResponse = await axios.get(`http://localhost:3001/api/auth/verify/${customerId}`);
+    const userResponse = await axios.get(`${userServiceUrl}/api/auth/verify/${customerId}`);
     if (!userResponse.data.valid) {
       return res.status(400).json({ message: 'Invalid user' });
     }
 
     // Verify restaurant exists and is approved
-    const restaurantResponse = await axios.get(`http://localhost:3002/api/restaurant/${restaurantId}`);
+    const restaurantResponse = await axios.get(`${restaurantServiceUrl}/api/restaurant/${restaurantId}`);
     if (!restaurantResponse.data) {
       return res.status(400).json({ message: 'Invalid restaurant' });
     }
@@ -52,7 +91,23 @@ const placeOrder = async (req, res) => {
 
     res.status(201).json({ message: 'Order placed successfully', order });
   } catch (error) {
-    res.status(500).json({ message: 'Error placing order', error: error.message });
+    const upstreamError = getAxiosErrorDetails(error);
+
+    console.error('Error placing order:', {
+      message: error.message,
+      userServiceUrl,
+      restaurantServiceUrl,
+      upstreamError
+    });
+
+    if (upstreamError) {
+      return res.status(upstreamError.status).json({
+        message: 'Error placing order',
+        error: upstreamError.data?.message || error.message
+      });
+    }
+
+    res.status(500).json({ message: 'Error placing order', error: error.message || 'Unknown error' });
   }
 };
 
@@ -68,8 +123,9 @@ const getOrderHistory = async (req, res) => {
       filter = { customerId: req.user.id };
     }
 
-    const orders = await Order.find(filter).populate('restaurantId', 'name').sort({ createdAt: -1 });
-    res.json(orders);
+    const orders = await Order.find(filter).sort({ createdAt: -1 });
+    const enrichedOrders = await enrichOrdersWithRestaurantDetails(orders);
+    res.json(enrichedOrders);
   } catch (error) {
     res.status(500).json({ message: 'Error fetching order history', error: error.message });
   }
@@ -92,10 +148,11 @@ const updateOrderStatus = async (req, res) => {
 const getOrder = async (req, res) => {
   try {
     const { orderId } = req.params;
-    const order = await Order.findById(orderId).populate('restaurantId', 'name');
+    const order = await Order.findById(orderId);
     if (!order) return res.status(404).json({ message: 'Order not found' });
 
-    res.json(order);
+    const enrichedOrder = await enrichOrdersWithRestaurantDetails(order);
+    res.json(enrichedOrder);
   } catch (error) {
     res.status(500).json({ message: 'Error fetching order', error: error.message });
   }
