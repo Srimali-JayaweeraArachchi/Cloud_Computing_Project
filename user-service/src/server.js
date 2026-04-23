@@ -16,7 +16,7 @@ app.get('/api/user/health', (req, res) => {
 });
 
 app.get('/', (req, res) => {
-  res.send('User Service - Food Ordering App');
+  res.send('User Services - Food Ordering App');
 });
 
 // Connect to MongoDB
