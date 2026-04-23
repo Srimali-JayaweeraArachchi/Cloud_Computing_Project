@@ -1,5 +1,21 @@
 import axios from 'axios';
 
+const getDefaultServiceUrl = (servicePath, localPort) => {
+  if (typeof window === 'undefined') {
+    return `http://localhost:${localPort}${servicePath}`;
+  }
+
+  const { hostname, port, origin } = window.location;
+
+  // CRA dev server usually runs on port 3000. In that case, hit the local
+  // backend services directly so login works even when the nginx gateway is off.
+  if (hostname === 'localhost' && port === '3000') {
+    return `http://localhost:${localPort}${servicePath}`;
+  }
+
+  return `${origin}${servicePath}`;
+};
+
 const createServiceClient = (baseURL) => {
   const client = axios.create({ baseURL });
 
@@ -14,9 +30,15 @@ const createServiceClient = (baseURL) => {
   return client;
 };
 
-const userClient = createServiceClient(process.env.REACT_APP_USER_SERVICE_URL || 'http://localhost/api/auth');
-const restaurantClient = createServiceClient(process.env.REACT_APP_RESTAURANT_SERVICE_URL || 'http://localhost/api/restaurant');
-const orderClient = createServiceClient(process.env.REACT_APP_ORDER_SERVICE_URL || 'http://localhost/api/orders');
+const userClient = createServiceClient(
+  process.env.REACT_APP_USER_SERVICE_URL || getDefaultServiceUrl('/api/auth', 8001)
+);
+const restaurantClient = createServiceClient(
+  process.env.REACT_APP_RESTAURANT_SERVICE_URL || getDefaultServiceUrl('/api/restaurant', 8002)
+);
+const orderClient = createServiceClient(
+  process.env.REACT_APP_ORDER_SERVICE_URL || getDefaultServiceUrl('/api/orders', 8003)
+);
 
 export const authAPI = {
   register: (userData) => userClient.post('/register', userData),
