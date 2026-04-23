@@ -12,30 +12,22 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Deploy to AWS EC2
+      - name: Build Docker images (CI)
+        run: docker compose build --no-cache
+
+      - name: Deploy to AWS EC2 (CD)
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ubuntu
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
-            echo "🚀 Starting CI/CD Deployment at $(date)"
+            echo "🚀 CI/CD Deployment started at $(date)"
             cd ~/food-ordering-app
-            
-            # Pull latest code safely
             git fetch origin
             git reset --hard origin/main
-            
-            # Deploy the application
-            echo "Stopping existing containers..."
             docker compose down
-            
-            echo "Building and starting services..."
             docker compose up -d --build
-            
-            echo "✅ Deployment completed successfully at $(date)"
-            echo "📊 Current container status:"
+            echo "✅ Deployment completed at $(date)"
             docker compose ps
-            echo ""
-            echo "🌐 Application is live at: http://16.16.202.254"
-            echo "🐰 RabbitMQ Management: http://16.16.202.254:15672"
+            echo "🌐 App URL: http://13.60.68.37"
