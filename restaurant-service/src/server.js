@@ -11,12 +11,12 @@ const PORT = process.env.PORT || 3002;
 app.use(cors());
 app.use(express.json());
 
-const restaurantRoutes = require('./routes/restaurant');
-app.use('/api/restaurant', restaurantRoutes);
-
 app.get('/api/restaurant/health', (req, res) => {
   res.json({ status: 'Restaurant Service is running!', service: 'restaurant-service' });
 });
+
+const restaurantRoutes = require('./routes/restaurant');
+app.use('/api/restaurant', restaurantRoutes);
 
 app.get('/', (req, res) => {
   res.send('Restaurant Service - Food Ordering App');

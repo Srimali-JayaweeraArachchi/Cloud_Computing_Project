@@ -1,7 +1,6 @@
 version: '3.8'
 
 services:
-  # RabbitMQ for async communication (Notification service)
   rabbitmq:
     image: rabbitmq:3-management
     container_name: foodordering-rabbitmq
@@ -13,7 +12,6 @@ services:
       - "15672:15672"
     restart: unless-stopped
 
-  # API Gateway using Nginx
   api-gateway:
     image: nginx:alpine
     container_name: foodordering-api-gateway
@@ -27,44 +25,44 @@ services:
       - order-service
     restart: unless-stopped
 
-  # User Service (Auth)
   user-service:
     build: ./user-service
     container_name: foodordering-user-service
     ports:
-      - "3001:3000"          # Host port 3001 → container port 3000
+      - "8001:3000"
     environment:
       - MONGO_URI_USERS=${MONGO_URI_USERS}
-      - JWT_SECRET=supersecretkeyforfoodapp123456789
+      - JWT_SECRET=${JWT_SECRET}
     restart: unless-stopped
 
-  # Restaurant Service
   restaurant-service:
     build: ./restaurant-service
     container_name: foodordering-restaurant-service
     ports:
-      - "3002:3000"
+      - "8002:3000"
     environment:
       - MONGO_URI_RESTAURANT=${MONGO_URI_RESTAURANT}
+      - JWT_SECRET=${JWT_SECRET}
     restart: unless-stopped
 
-  # Order Service
   order-service:
     build: ./order-service
     container_name: foodordering-order-service
     ports:
-      - "3003:3000"
+      - "8003:3000"
     environment:
       - MONGO_URI_ORDERS=${MONGO_URI_ORDERS}
+      - JWT_SECRET=${JWT_SECRET}
       - RABBITMQ_URL=amqp://guest:guest@rabbitmq:5672
     depends_on:
       - rabbitmq
     restart: unless-stopped
 
-  # Notification Service (async)
   notification-service:
     build: ./notification-service
     container_name: foodordering-notification-service
+    ports:
+      - "8004:3000"
     environment:
       - MONGO_URI_ORDERS=${MONGO_URI_ORDERS}
       - RABBITMQ_URL=amqp://guest:guest@rabbitmq:5672

@@ -18,21 +18,37 @@ const AdminDashboard = () => {
       setLoading(true);
       setError('');
 
-      try {
-        const [usersResponse, restaurantsResponse, ordersResponse] = await Promise.all([
+      const [usersResponse, restaurantsResponse, ordersResponse] = await Promise.allSettled([
           authAPI.getUsers(),
           restaurantAPI.getAllRestaurants(),
           orderAPI.getAllOrders(),
-        ]);
+      ]);
 
-        setUsers(usersResponse.data);
-        setRestaurants(restaurantsResponse.data);
-        setOrders(ordersResponse.data);
-      } catch (error) {
-        setError('Unable to load admin data right now.');
-      } finally {
-        setLoading(false);
+      if (usersResponse.status === 'fulfilled') {
+        setUsers(usersResponse.value.data);
       }
+
+      if (restaurantsResponse.status === 'fulfilled') {
+        setRestaurants(restaurantsResponse.value.data);
+      }
+
+      if (ordersResponse.status === 'fulfilled') {
+        setOrders(ordersResponse.value.data);
+      }
+
+      const failedSections = [
+        usersResponse.status !== 'fulfilled' ? 'users' : null,
+        restaurantsResponse.status !== 'fulfilled' ? 'restaurants' : null,
+        ordersResponse.status !== 'fulfilled' ? 'orders' : null,
+      ].filter(Boolean);
+
+      if (failedSections.length === 3) {
+        setError('Unable to load admin data right now. Check whether the user, restaurant, and order services are running on ports 8001, 8002, and 8003.');
+      } else if (failedSections.length > 0) {
+        setError(`Some admin data could not be loaded: ${failedSections.join(', ')}. You can still use the sections that loaded successfully.`);
+      }
+
+      setLoading(false);
     };
 
     loadAdminData();
