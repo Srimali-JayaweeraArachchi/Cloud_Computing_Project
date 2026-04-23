@@ -14,6 +14,13 @@ jobs:
 
       - name: CI - Validate Docker Compose file
         run: |
+          cat > .env << EOF
+          MONGO_URI_USERS=mongodb://localhost/users_db
+          MONGO_URI_RESTAURANT=mongodb://localhost/restaurant_db
+          MONGO_URI_ORDERS=mongodb://localhost/orders_db
+          JWT_SECRET=dummy-for-validation
+          RABBITMQ_URL=amqp://guest:guest@rabbitmq:5672
+          EOF
           docker compose config
           echo "✅ Docker Compose config is valid"
 
@@ -32,13 +39,26 @@ jobs:
 
             git fetch origin main
             git reset --hard origin/main
+            echo "📌 Commit: $(git log --oneline -1)"
+
+            # Create root .env for docker compose
+            cat > .env << EOF
+            MONGO_URI_USERS=${{ secrets.MONGO_URI_USERS }}
+            MONGO_URI_RESTAURANT=${{ secrets.MONGO_URI_RESTAURANT }}
+            MONGO_URI_ORDERS=${{ secrets.MONGO_URI_ORDERS }}
+            JWT_SECRET=${{ secrets.JWT_SECRET }}
+            RABBITMQ_URL=${{ secrets.RABBITMQ_URL }}
+            EOF
+
+            echo "✅ .env created"
 
             docker compose down --remove-orphans
-            docker compose pull 2>/dev/null || true
-            docker compose up -d --build
+            docker image prune -f
+            docker compose build --no-cache
+            docker compose up -d
 
             echo "⏳ Waiting for services..."
-            sleep 10
+            sleep 20
 
             docker compose ps
             echo "✅ Deployment done at $(date)"

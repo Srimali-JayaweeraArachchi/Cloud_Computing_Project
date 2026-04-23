@@ -14,36 +14,39 @@ services:
     build: ./user-service
     container_name: foodordering-user-service
     ports:
-      - "3001:3000"
+      - "8001:8001"
     environment:
-      PORT: 3000
+      PORT: 8001
       MONGO_URI: ${MONGO_URI_USERS}
       JWT_SECRET: ${JWT_SECRET}
+      NODE_ENV: production
     restart: unless-stopped
 
   restaurant-service:
     build: ./restaurant-service
     container_name: foodordering-restaurant-service
     ports:
-      - "3002:3000"
+      - "8002:8002"
     environment:
-      PORT: 3000
+      PORT: 8002
       MONGO_URI: ${MONGO_URI_RESTAURANT}
       JWT_SECRET: ${JWT_SECRET}
+      NODE_ENV: production
     restart: unless-stopped
 
   order-service:
     build: ./order-service
     container_name: foodordering-order-service
     ports:
-      - "3003:3000"
+      - "8003:8003"
     environment:
-      PORT: 3000
+      PORT: 8003
       MONGO_URI: ${MONGO_URI_ORDERS}
       JWT_SECRET: ${JWT_SECRET}
-      RABBITMQ_URL: amqp://guest:guest@rabbitmq:5672
-      USER_SERVICE_URL: http://user-service:3000
-      RESTAURANT_SERVICE_URL: http://restaurant-service:3000
+      RABBITMQ_URL: ${RABBITMQ_URL}
+      USER_SERVICE_URL: http://user-service:8001
+      RESTAURANT_SERVICE_URL: http://restaurant-service:8002
+      NODE_ENV: production
     depends_on:
       - rabbitmq
       - user-service
@@ -54,10 +57,11 @@ services:
     build: ./notification-service
     container_name: foodordering-notification-service
     ports:
-      - "3004:3004"
+      - "8004:8004"
     environment:
-      PORT: 3004
-      RABBITMQ_URL: amqp://guest:guest@rabbitmq:5672
+      PORT: 8004
+      RABBITMQ_URL: ${RABBITMQ_URL}
+      NODE_ENV: production
     depends_on:
       - rabbitmq
     restart: unless-stopped
