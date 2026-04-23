@@ -162,7 +162,7 @@ const CustomerDashboard = () => {
                   <p>Freshly prepared and ready for your next order.</p>
                 </div>
                 <div className="menu-card-footer">
-                  <strong>${Number(item.price).toFixed(2)}</strong>
+                  <strong>{`Rs. ${Number(item.price).toFixed(2)}`}</strong>
                   <button className="primary-button small" onClick={() => addToCart(item)}>Add</button>
                 </div>
               </article>
@@ -183,7 +183,7 @@ const CustomerDashboard = () => {
               <div key={item._id} className="stack-card">
                 <div>
                   <strong>{item.name}</strong>
-                  <span>${Number(item.price).toFixed(2)} each</span>
+                  <span>{`Rs. ${Number(item.price).toFixed(2)} each`}</span>
                 </div>
                 <div className="quantity-controls">
                   <button onClick={() => updateQuantity(item._id, -1)}>-</button>
@@ -196,7 +196,7 @@ const CustomerDashboard = () => {
 
           <div className="summary-strip">
             <span>Total</span>
-            <strong>${cartTotal.toFixed(2)}</strong>
+            <strong>{`Rs. ${cartTotal.toFixed(2)}`}</strong>
           </div>
 
           <button
@@ -223,7 +223,7 @@ const CustomerDashboard = () => {
                 <span>{new Date(order.createdAt).toLocaleString()}</span>
               </div>
               <div className={`status-pill status-${order.status}`}>{order.status}</div>
-              <strong>${Number(order.totalPrice || 0).toFixed(2)}</strong>
+              <strong>{`Rs. ${Number(order.totalPrice || 0).toFixed(2)}`}</strong>
             </div>
           ))}
         </div>
