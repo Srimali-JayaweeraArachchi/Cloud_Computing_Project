@@ -160,7 +160,6 @@ const AdminDashboard = () => {
                   </div>
                 </div>
                 <p>{restaurant.location || 'No location provided'}</p>
-                <p>Owner: {restaurant.ownerId?.name || 'Unknown owner'}</p>
                 <div className="button-row">
                   <button
                     className="primary-button small"
@@ -189,7 +188,7 @@ const AdminDashboard = () => {
                 <span>Customer ID: {order.customerId}</span>
               </div>
               <div className={`status-pill status-${order.status}`}>{order.status}</div>
-              <strong>${Number(order.totalPrice || 0).toFixed(2)}</strong>
+              <strong>{`Rs. ${Number(order.totalPrice || 0).toFixed(2)}`}</strong>
             </div>
           ))}
         </div>

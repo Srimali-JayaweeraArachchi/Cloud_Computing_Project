@@ -219,7 +219,7 @@ const RestaurantDashboard = () => {
                       <strong>{item.name}</strong>
                       <span>Available now</span>
                     </div>
-                    <strong>${Number(item.price).toFixed(2)}</strong>
+                    <strong>{`Rs. ${Number(item.price).toFixed(2)}`}</strong>
                   </div>
                 ))}
               </div>
@@ -239,7 +239,7 @@ const RestaurantDashboard = () => {
                       <div className={`status-pill status-${order.status}`}>{order.status}</div>
                     </div>
                     <p>{order.items?.length || 0} items</p>
-                    <p>Total: ${Number(order.totalPrice || 0).toFixed(2)}</p>
+                    <p>{`Total: Rs. ${Number(order.totalPrice || 0).toFixed(2)}`}</p>
                     <div className="button-row">
                       {nextStatusMap[order.status] ? (
                         <button
