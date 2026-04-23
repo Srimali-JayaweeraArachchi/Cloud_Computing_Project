@@ -1,4 +1,4 @@
-name: Full CI/CD - Build & Deploy to AWS EC2
+name: Full CI/CD - Build and Deploy to AWS EC2
 
 on:
   push:
@@ -21,19 +21,15 @@ jobs:
           host: ${{ secrets.EC2_HOST }}
           username: ubuntu
           key: ${{ secrets.SSH_PRIVATE_KEY }}
-          timeout: 60s
-          command_timeout: 300s
+          timeout: 120s
+          command_timeout: 600s
           script: |
-            echo "🚀 Full CI/CD Deployment started at $(date)"
+            echo "🚀 Full CI/CD started at $(date)"
             cd ~/food-ordering-app
             git fetch origin
             git reset --hard origin/main
-            echo "Stopping old containers..."
             docker compose down
-            echo "Building and starting new containers..."
             docker compose up -d --build
             echo "✅ Deployment completed at $(date)"
-            echo "📊 Container status:"
             docker compose ps
-            echo "🌐 Application URL: http://13.60.68.37"
-            echo "🐰 RabbitMQ: http://13.60.68.37:15672"
+            echo "🌐 App is live at: http://16.170.217.98"
