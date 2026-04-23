@@ -1,35 +1,45 @@
-name: Full CI/CD - Build and Deploy to AWS EC2
+name: CI/CD - Build and Deploy to AWS EC2
 
 on:
   push:
     branches: [ main ]
 
 jobs:
-  deploy:
+  build-and-deploy:
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: CI - Build Docker images
-        run: docker compose build --no-cache
+      - name: CI - Validate Docker Compose file
+        run: |
+          docker compose config
+          echo "✅ Docker Compose config is valid"
 
-      - name: CD - Deploy to AWS EC2
+      - name: CD - Deploy to AWS EC2 via SSH
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ubuntu
           key: ${{ secrets.SSH_PRIVATE_KEY }}
-          timeout: 120s
+          port: 22
+          timeout: 60s
           command_timeout: 600s
           script: |
-            echo "🚀 Full CI/CD started at $(date)"
+            echo "🚀 Deployment started at $(date)"
             cd ~/food-ordering-app
-            git fetch origin
+
+            git fetch origin main
             git reset --hard origin/main
-            docker compose down
+
+            docker compose down --remove-orphans
+            docker compose pull 2>/dev/null || true
             docker compose up -d --build
-            echo "✅ Deployment completed at $(date)"
+
+            echo "⏳ Waiting for services..."
+            sleep 10
+
             docker compose ps
-            echo "🌐 App is live at: http://16.170.217.98"
+            echo "✅ Deployment done at $(date)"
+            echo "🌐 Live at: http://16.170.217.98"
