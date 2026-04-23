@@ -48,7 +48,7 @@ const Login = () => {
 
       <section className="auth-panel">
         <div className="auth-card">
-          <div className="section-eyebrow">Welcome back</div>
+          <div className="section-eyebrow">Welcome back!</div>
           <h2>Sign in to your dashboard</h2>
 
           <form className="auth-form" onSubmit={handleSubmit}>
