@@ -72,9 +72,9 @@ services:
     ports:
       - "3000:3000"
     environment:
-      REACT_APP_USER_SERVICE_URL: http://localhost/api/auth
-      REACT_APP_RESTAURANT_SERVICE_URL: http://localhost/api/restaurant
-      REACT_APP_ORDER_SERVICE_URL: http://localhost/api/orders
+      REACT_APP_USER_SERVICE_URL: http://api-gateway/api/auth
+      REACT_APP_RESTAURANT_SERVICE_URL: http://api-gateway/api/restaurant
+      REACT_APP_ORDER_SERVICE_URL: http://api-gateway/api/orders
     depends_on:
       - user-service
       - restaurant-service
