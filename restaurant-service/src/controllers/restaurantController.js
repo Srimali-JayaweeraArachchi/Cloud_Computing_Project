@@ -22,7 +22,7 @@ const registerRestaurant = async (req, res) => {
 // Get all approved restaurants
 const getRestaurants = async (req, res) => {
   try {
-    const restaurants = await Restaurant.find({ isApproved: true }).populate('ownerId', 'name');
+    const restaurants = await Restaurant.find({ isApproved: true });
     res.json(restaurants);
   } catch (error) {
     res.status(500).json({ message: 'Error fetching restaurants', error: error.message });
@@ -31,7 +31,7 @@ const getRestaurants = async (req, res) => {
 
 const getAllRestaurants = async (req, res) => {
   try {
-    const restaurants = await Restaurant.find().populate('ownerId', 'name email');
+    const restaurants = await Restaurant.find();
     res.json(restaurants);
   } catch (error) {
     res.status(500).json({ message: 'Error fetching restaurants', error: error.message });
@@ -42,7 +42,7 @@ const getAllRestaurants = async (req, res) => {
 const getRestaurant = async (req, res) => {
   try {
     const { restaurantId } = req.params;
-    const restaurant = await Restaurant.findById(restaurantId).populate('ownerId', 'name');
+    const restaurant = await Restaurant.findById(restaurantId);
     if (!restaurant) {
       return res.status(404).json({ message: 'Restaurant not found' });
     }
@@ -96,7 +96,7 @@ const updateRestaurantApproval = async (req, res) => {
       restaurantId,
       { isApproved: Boolean(isApproved) },
       { new: true }
-    ).populate('ownerId', 'name email');
+    );
 
     if (!restaurant) {
       return res.status(404).json({ message: 'Restaurant not found' });
