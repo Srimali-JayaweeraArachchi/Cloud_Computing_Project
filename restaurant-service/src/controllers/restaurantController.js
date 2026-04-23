@@ -1,20 +1,5 @@
 const Restaurant = require('../models/Restaurant');
 const MenuItem = require('../models/MenuItem');
-const amqp = require('amqplib');
-const axios = require('axios');
-
-const publishToNotification = async (message) => {
-  try {
-    const connection = await amqp.connect('amqp://localhost:5672');
-    const channel = await connection.createChannel();
-    await channel.assertQueue('notifications');
-    channel.sendToQueue('notifications', Buffer.from(JSON.stringify(message)));
-    console.log('Notification published:', message);
-  } catch (err) {
-    console.error('RabbitMQ error:', err);
-  }
-};
-
 // Register a new restaurant
 const registerRestaurant = async (req, res) => {
   try {
@@ -44,12 +29,21 @@ const getRestaurants = async (req, res) => {
   }
 };
 
+const getAllRestaurants = async (req, res) => {
+  try {
+    const restaurants = await Restaurant.find().populate('ownerId', 'name email');
+    res.json(restaurants);
+  } catch (error) {
+    res.status(500).json({ message: 'Error fetching restaurants', error: error.message });
+  }
+};
+
 // Get a specific restaurant
 const getRestaurant = async (req, res) => {
   try {
     const { restaurantId } = req.params;
     const restaurant = await Restaurant.findById(restaurantId).populate('ownerId', 'name');
-    if (!restaurant || !restaurant.isApproved) {
+    if (!restaurant) {
       return res.status(404).json({ message: 'Restaurant not found' });
     }
     res.json(restaurant);
@@ -94,59 +88,32 @@ const getMenu = async (req, res) => {
   }
 };
 
-// Accept order
-const acceptOrder = async (req, res) => {
+const updateRestaurantApproval = async (req, res) => {
   try {
-    const { orderId } = req.params;
-    const ownerId = req.user.id;
+    const { restaurantId } = req.params;
+    const { isApproved } = req.body;
+    const restaurant = await Restaurant.findByIdAndUpdate(
+      restaurantId,
+      { isApproved: Boolean(isApproved) },
+      { new: true }
+    ).populate('ownerId', 'name email');
 
-    // Verify restaurant ownership by calling order service
-    const orderResponse = await axios.get(`http://localhost:3003/api/orders/${orderId}`);
-    if (orderResponse.data.restaurantId !== ownerId) {
-      return res.status(403).json({ message: 'Unauthorized' });
+    if (!restaurant) {
+      return res.status(404).json({ message: 'Restaurant not found' });
     }
 
-    // Update order status via order service
-    await axios.put(`http://localhost:3003/api/orders/${orderId}/status`, { status: 'accepted' });
-
-    // Optional: Publish notification (commented out for testing without RabbitMQ)
-    // await publishToNotification({
-    //   event: 'order_accepted',
-    //   orderId,
-    //   message: 'Your order has been accepted by the restaurant!'
-    // });
-    res.json({ message: 'Order accepted' });
+    res.json({ message: 'Restaurant approval updated', restaurant });
   } catch (error) {
-    res.status(500).json({ message: 'Error accepting order', error: error.message });
-  }
-};
-
-// Reject order
-const rejectOrder = async (req, res) => {
-  try {
-    const { orderId } = req.params;
-    const ownerId = req.user.id;
-
-    // Verify restaurant ownership (this would need integration with order service)
-
-    // Optional: Publish notification (commented out for testing without RabbitMQ)
-    // await publishToNotification({
-    //   event: 'order_rejected',
-    //   orderId,
-    //   message: 'Your order has been rejected by the restaurant.'
-    // });
-    res.json({ message: 'Order rejected' });
-  } catch (error) {
-    res.status(500).json({ message: 'Error rejecting order', error: error.message });
+    res.status(500).json({ message: 'Error updating restaurant approval', error: error.message });
   }
 };
 
 module.exports = {
   registerRestaurant,
   getRestaurants,
+  getAllRestaurants,
   getRestaurant,
   addMenuItem,
   getMenu,
-  acceptOrder,
-  rejectOrder
+  updateRestaurantApproval
 };

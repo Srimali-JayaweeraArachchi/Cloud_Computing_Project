@@ -1,8 +1,8 @@
 const express = require('express');
-const mongoose = require('mongoose');
 const amqp = require('amqplib');
 const dotenv = require('dotenv');
 const cors = require('cors');
+const connectDB = require('./config/db');
 
 dotenv.config();
 
@@ -20,26 +20,30 @@ app.get('/', (req, res) => {
   res.send('Order Service - Food Ordering App');
 });
 
-// Routes
 const orderRoutes = require('./routes/order');
 app.use('/api/orders', orderRoutes);
 
-// Simple RabbitMQ connection (async)
 async function connectRabbitMQ() {
   try {
-    const conn = await amqp.connect(process.env.RABBITMQ_URL || 'amqp://localhost:5672');
-    console.log('✅ Connected to RabbitMQ');
+    await amqp.connect(process.env.RABBITMQ_URL || 'amqp://localhost:5672');
+    console.log('RabbitMQ connected for Order Service');
   } catch (err) {
-    console.error('❌ RabbitMQ connection error:', err);
+    console.error('RabbitMQ connection error in Order Service:', err.message);
   }
 }
 
-connectRabbitMQ();
+async function startServer() {
+  try {
+    await connectDB();
+    await connectRabbitMQ();
 
-mongoose.connect(process.env.MONGO_URI || 'mongodb://localhost:27017/foodordering')
-  .then(() => console.log('✅ Connected to MongoDB'))
-  .catch(err => console.error('❌ MongoDB connection error:', err));
+    app.listen(PORT, '0.0.0.0', () => {
+      console.log(`Order Service running on port ${PORT}`);
+    });
+  } catch (err) {
+    console.error('[Startup] Order Service failed to start:', err.message);
+    process.exit(1);
+  }
+}
 
-app.listen(PORT, '0.0.0.0', () => {
-  console.log(`🚀 Order Service running on port ${PORT}`);
-});
+startServer();

@@ -58,8 +58,17 @@ const placeOrder = async (req, res) => {
 
 const getOrderHistory = async (req, res) => {
   try {
-    const customerId = req.user.id;
-    const orders = await Order.find({ customerId }).populate('restaurantId', 'name').sort({ createdAt: -1 });
+    let filter = {};
+
+    if (req.user.role === 'admin' && req.path === '/admin/all') {
+      filter = {};
+    } else if ((req.user.role === 'restaurant_owner' || req.user.role === 'admin') && req.params.restaurantId) {
+      filter = { restaurantId: req.params.restaurantId };
+    } else {
+      filter = { customerId: req.user.id };
+    }
+
+    const orders = await Order.find(filter).populate('restaurantId', 'name').sort({ createdAt: -1 });
     res.json(orders);
   } catch (error) {
     res.status(500).json({ message: 'Error fetching order history', error: error.message });

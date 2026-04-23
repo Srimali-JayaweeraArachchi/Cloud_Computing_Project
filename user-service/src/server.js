@@ -1,7 +1,7 @@
 const express = require('express');
-const mongoose = require('mongoose');
 const dotenv = require('dotenv');
 const cors = require('cors');
+const connectDB = require('./config/db');
 
 dotenv.config();
 
@@ -19,15 +19,20 @@ app.get('/', (req, res) => {
   res.send('User Service - Food Ordering App');
 });
 
-// Routes
 const authRoutes = require('./routes/auth');
 app.use('/api/auth', authRoutes);
 
-// Connect to MongoDB
-mongoose.connect(process.env.MONGO_URI || 'mongodb://localhost:27017/foodordering')
-  .then(() => console.log('✅ Connected to MongoDB'))
-  .catch(err => console.error('❌ MongoDB connection error:', err));
+async function startServer() {
+  try {
+    await connectDB();
 
-app.listen(PORT, '0.0.0.0', () => {
-  console.log(`🚀 User Service running on port ${PORT}`);
-});
+    app.listen(PORT, '0.0.0.0', () => {
+      console.log(`User Service running on port ${PORT}`);
+    });
+  } catch (err) {
+    console.error('[Startup] User Service failed to start:', err.message);
+    process.exit(1);
+  }
+}
+
+startServer();

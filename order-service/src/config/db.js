@@ -13,9 +13,9 @@ function configureDnsServers() {
 
 const connectDB = async () => {
   const mongoUri =
-    process.env.MONGO_URI_USERS ||
+    process.env.MONGO_URI_ORDERS ||
     process.env.MONGO_URI ||
-    'mongodb://localhost:27017/users_db';
+    'mongodb://localhost:27017/orders_db';
 
   configureDnsServers();
 
@@ -23,9 +23,9 @@ const connectDB = async () => {
     await mongoose.connect(mongoUri, {
       serverSelectionTimeoutMS: 10000
     });
-    console.log('MongoDB connected for User Service');
+    console.log('MongoDB connected for Order Service');
   } catch (err) {
-    console.error('MongoDB connection error in User Service:', err.message);
+    console.error('MongoDB connection error in Order Service:', err.message);
     throw err;
   }
 };

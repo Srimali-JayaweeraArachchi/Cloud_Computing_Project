@@ -4,32 +4,30 @@ const { authenticate, authorize } = require('../middleware/auth');
 const {
   registerRestaurant,
   getRestaurants,
+  getAllRestaurants,
   getRestaurant,
   addMenuItem,
   getMenu,
-  acceptOrder,
-  rejectOrder
+  updateRestaurantApproval
 } = require('../controllers/restaurantController');
 
 // Register a new restaurant (owner only)
-router.post('/register', authenticate, authorize(['owner']), registerRestaurant);
+router.post('/register', authenticate, authorize(['restaurant_owner']), registerRestaurant);
 
 // Get all approved restaurants
 router.get('/restaurants', getRestaurants);
+
+// Admin management routes
+router.get('/admin/restaurants', authenticate, authorize(['admin']), getAllRestaurants);
+router.put('/admin/restaurants/:restaurantId/approval', authenticate, authorize(['admin']), updateRestaurantApproval);
 
 // Get a specific restaurant
 router.get('/:restaurantId', getRestaurant);
 
 // Add menu item (restaurant owner only)
-router.post('/menu', authenticate, authorize(['owner']), addMenuItem);
+router.post('/menu', authenticate, authorize(['restaurant_owner']), addMenuItem);
 
 // Get menu for a restaurant
 router.get('/menu/:restaurantId', getMenu);
-
-// Accept order (restaurant owner only)
-router.post('/orders/:orderId/accept', authenticate, authorize(['owner']), acceptOrder);
-
-// Reject order (restaurant owner only)
-router.post('/orders/:orderId/reject', authenticate, authorize(['owner']), rejectOrder);
 
 module.exports = router;
