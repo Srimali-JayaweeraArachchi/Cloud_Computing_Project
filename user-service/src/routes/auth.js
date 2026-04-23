@@ -14,3 +14,5 @@ router.get('/verify/:userId', verifyUser);
 // Admin routes
 router.get('/admin/users', authenticate, authorize(['admin']), getUsers);
 router.put('/admin/users/:userId/role', authenticate, authorize(['admin']), updateUserRole);
+
+module.exports = router;
