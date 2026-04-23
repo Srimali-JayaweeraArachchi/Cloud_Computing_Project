@@ -50,7 +50,6 @@ const Login = () => {
         <div className="auth-card">
           <div className="section-eyebrow">Welcome back</div>
           <h2>Sign in to your dashboard</h2>
-          <p className="section-copy">Use your account to continue into the customer, restaurant owner, or admin workspace.</p>
 
           <form className="auth-form" onSubmit={handleSubmit}>
             <label>

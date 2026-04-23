@@ -45,7 +45,6 @@ const Register = () => {
         <div className="auth-card">
           <div className="section-eyebrow">Get started</div>
           <h2>Create your account</h2>
-          <p className="section-copy">This registration connects directly to the user service and stores your JWT session automatically.</p>
 
           <form className="auth-form" onSubmit={handleSubmit}>
             <label>
