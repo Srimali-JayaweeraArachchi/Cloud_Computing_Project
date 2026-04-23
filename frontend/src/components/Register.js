@@ -32,21 +32,12 @@ const Register = () => {
   return (
     <div className="auth-layout">
       <section className="auth-hero">
-        <div className="auth-badge">Role-based onboarding</div>
-        <h1>Create an account for the right side of the platform.</h1>
-        <p>
-          Customers can order instantly, while restaurant owners can register their restaurant and manage live orders after approval.
-        </p>
-
-        <div className="hero-feature-list">
-          <div className="feature-card">
-            <strong>Customer</strong>
-            <span>Browse approved restaurants, build a cart, and follow order progress.</span>
-          </div>
-          <div className="feature-card">
-            <strong>Restaurant Owner</strong>
-            <span>Register your restaurant, add menu items, and move orders through delivery stages.</span>
-          </div>
+        <div className="auth-brand-block">
+          <h1>Food Ordering App</h1>
+        </div>
+        <div className="auth-hero-copy">
+          <p>Good food feels closer when every order moves with clarity.</p>
+          <p>A shared space for customers, restaurant owners, and admins to keep every meal journey simple, timely, and trusted.</p>
         </div>
       </section>
 

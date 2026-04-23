@@ -37,25 +37,12 @@ const Login = () => {
   return (
     <div className="auth-layout">
       <section className="auth-hero">
-        <div className="auth-badge">Cloud-native food ordering</div>
-        <h1>Serve a frontend that actually fits the backend you built.</h1>
-        <p>
-          Browse restaurants, manage menus, track orders, and oversee the whole system from a single polished interface.
-        </p>
-
-        <div className="hero-metrics">
-          <div className="metric-card">
-            <span>Customer</span>
-            <strong>Browse, cart, checkout</strong>
-          </div>
-          <div className="metric-card">
-            <span>Restaurant Owner</span>
-            <strong>Menus, approvals, live orders</strong>
-          </div>
-          <div className="metric-card">
-            <span>Admin</span>
-            <strong>Users, restaurants, full visibility</strong>
-          </div>
+        <div className="auth-brand-block">
+          <h1>Food Ordering App</h1>
+        </div>
+        <div className="auth-hero-copy">
+          <p>Good food feels closer when every order moves with clarity.</p>
+          <p>A shared space for customers, restaurant owners, and admins to keep every meal journey simple, timely, and trusted.</p>
         </div>
       </section>
 
