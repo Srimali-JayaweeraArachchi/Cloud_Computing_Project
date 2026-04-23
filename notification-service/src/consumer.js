@@ -1,8 +1,10 @@
 const amqp = require('amqplib');
 
 const startConsumer = async () => {
+  const rabbitMqUrl = process.env.RABBITMQ_URL || 'amqp://guest:guest@localhost:5672';
+
   try {
-    const connection = await amqp.connect('amqp://localhost:5672');
+    const connection = await amqp.connect(rabbitMqUrl);
     const channel = await connection.createChannel();
     await channel.assertQueue('notifications', { durable: true });
 
@@ -11,14 +13,11 @@ const startConsumer = async () => {
     channel.consume('notifications', (msg) => {
       const content = JSON.parse(msg.content.toString());
       console.log('Received notification:', content);
-      
-      // TODO: Send email, push notification, or in-app notification here
-      // For now, just log it. You can integrate nodemailer, Firebase, etc.
 
       channel.ack(msg);
     });
   } catch (err) {
-    console.error('RabbitMQ Consumer Error:', err);
+    console.error('RabbitMQ Consumer Error:', err.message);
   }
 };
 

@@ -1,5 +1,4 @@
 const express = require('express');
-const amqp = require('amqplib');
 const dotenv = require('dotenv');
 const cors = require('cors');
 const startConsumer = require('./consumer');
@@ -21,6 +20,6 @@ app.get('/', (req, res) => {
 });
 
 app.listen(PORT, '0.0.0.0', () => {
-  console.log(`🚀 Notification Service running on port ${PORT}`);
+  console.log(`Notification Service running on port ${PORT}`);
   startConsumer();
 });
