@@ -30,8 +30,14 @@
   padding: 56px;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
+  justify-content: center;
+  gap: 24px;
   overflow: hidden;
+}
+
+.auth-brand-block {
+  display: grid;
+  gap: 10px;
 }
 
 .auth-hero h1,
@@ -40,6 +46,18 @@
   font-size: clamp(2.5rem, 4vw, 4.8rem);
   line-height: 0.96;
   letter-spacing: -0.05em;
+}
+
+.auth-hero-copy {
+  display: grid;
+  gap: 12px;
+  max-width: 560px;
+}
+
+.auth-hero-copy p {
+  margin: 0;
+  font-size: 0.98rem;
+  line-height: 1.8;
 }
 
 .auth-hero p,
@@ -62,7 +80,6 @@
   width: min(100%, 520px);
 }
 
-.auth-badge,
 .section-eyebrow,
 .user-pill,
 .status-pill {
@@ -75,7 +92,6 @@
   text-transform: uppercase;
 }
 
-.auth-badge,
 .section-eyebrow {
   margin-bottom: 18px;
   padding: 8px 14px;
@@ -84,8 +100,6 @@
   border: 1px solid rgba(255, 122, 89, 0.24);
 }
 
-.hero-metrics,
-.hero-feature-list,
 .card-list,
 .stack-list,
 .table-like-list,
@@ -93,14 +107,6 @@
 .dashboard-grid {
   display: grid;
   gap: 16px;
-}
-
-.hero-metrics {
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-}
-
-.hero-feature-list {
-  grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
 .metric-card,
@@ -377,9 +383,7 @@ button {
   .auth-layout,
   .customer-grid,
   .owner-grid,
-  .admin-grid,
-  .hero-metrics,
-  .hero-feature-list {
+  .admin-grid {
     grid-template-columns: 1fr;
   }
 }
