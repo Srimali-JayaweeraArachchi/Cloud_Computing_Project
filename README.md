@@ -89,15 +89,7 @@ cd Cloud_Computing_Project
 ```
 
 **2. Create the `.env` file in the root directory:**
-```bash
-cat > .env << EOF
-MONGO_URI_USERS=mongodb+srv://foodappuser:c8vDAgIwv9kdU0V8@cluster0.dhnskht.mongodb.net/users_db?retryWrites=true&w=majority&appName=Cluster0
-MONGO_URI_RESTAURANT=mongodb+srv://foodappuser:c8vDAgIwv9kdU0V8@cluster0.dhnskht.mongodb.net/restaurant_db?retryWrites=true&w=majority&appName=Cluster0
-MONGO_URI_ORDERS=mongodb+srv://foodappuser:c8vDAgIwv9kdU0V8@cluster0.dhnskht.mongodb.net/orders_db?retryWrites=true&w=majority&appName=Cluster0
-JWT_SECRET=481498ccec4545fefaedb7cbef183186622f0a72b5c4f595c04fbc0b6c22625210a76c1a0ad51cd5b4bfe924f28e5a252726d95615c6f886cfed793f0ad5433c
-RABBITMQ_URL=amqp://guest:guest@rabbitmq:5672
-EOF
-```
+
 
 **3. Start the full application:**
 ```bash
@@ -156,14 +148,6 @@ newgrp docker
 ```bash
 git clone https://github.com/Srimali-JayaweeraArachchi/Cloud_Computing_Project.git food-ordering-app
 cd food-ordering-app
-
-cat > .env << EOF
-MONGO_URI_USERS=mongodb+srv://foodappuser:c8vDAgIwv9kdU0V8@cluster0.dhnskht.mongodb.net/users_db?retryWrites=true&w=majority&appName=Cluster0
-MONGO_URI_RESTAURANT=mongodb+srv://foodappuser:c8vDAgIwv9kdU0V8@cluster0.dhnskht.mongodb.net/restaurant_db?retryWrites=true&w=majority&appName=Cluster0
-MONGO_URI_ORDERS=mongodb+srv://foodappuser:c8vDAgIwv9kdU0V8@cluster0.dhnskht.mongodb.net/orders_db?retryWrites=true&w=majority&appName=Cluster0
-JWT_SECRET=481498ccec4545fefaedb7cbef183186622f0a72b5c4f595c04fbc0b6c22625210a76c1a0ad51cd5b4bfe924f28e5a252726d95615c6f886cfed793f0ad5433c
-RABBITMQ_URL=amqp://guest:guest@rabbitmq:5672
-EOF
 
 docker compose up -d --build
 ```
