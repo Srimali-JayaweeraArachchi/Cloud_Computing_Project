@@ -32,21 +32,16 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: 22
           timeout: 60s
-          command_timeout: 600s
+          command_timeout: 1200s
           script: |
             echo "🚀 Deployment started at $(date)"
-
-            echo "💾 Disk space before cleanup:"
             df -h / | tail -1
-
             cd ~/food-ordering-app
 
-            # Pull latest code
             git fetch origin main
             git reset --hard origin/main
             echo "📌 Commit: $(git log --oneline -1)"
 
-            # Recreate .env file
             cat > .env << EOF
             MONGO_URI_USERS=${{ secrets.MONGO_URI_USERS }}
             MONGO_URI_RESTAURANT=${{ secrets.MONGO_URI_RESTAURANT }}
@@ -54,25 +49,14 @@ jobs:
             JWT_SECRET=${{ secrets.JWT_SECRET }}
             RABBITMQ_URL=${{ secrets.RABBITMQ_URL }}
             EOF
-            echo "✅ .env created"
 
-            # Stop old containers
             docker compose down --remove-orphans
-
-            # Clean disk before build
             docker system prune -f
-            echo "💾 Disk space after cleanup:"
-            df -h / | tail -1
 
-            # Build and start fresh
-            docker compose build --no-cache
+            docker compose build
             docker compose up -d
 
-            echo "⏳ Waiting for services to start..."
-            sleep 20
-
-            # Show status
+            sleep 15
             docker compose ps
-            echo "📌 Deployed commit: $(git log --oneline -1)"
-            echo "✅ Deployment done at $(date)"
-            echo "🌐 Live at: http://${{ secrets.EC2_HOST }}"
+            echo "✅ Done at $(date)"
+            echo "🌐 http://${{ secrets.EC2_HOST }}"
