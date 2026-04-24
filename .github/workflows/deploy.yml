@@ -36,12 +36,13 @@ jobs:
           script: |
             echo "🚀 Deployment started at $(date)"
             df -h / | tail -1
-
             cd ~/food-ordering-app
 
             # Pull latest code
             git fetch origin main
+            BEFORE=$(git rev-parse HEAD)
             git reset --hard origin/main
+            AFTER=$(git rev-parse HEAD)
             echo "📌 Commit: $(git log --oneline -1)"
 
             # Recreate .env
@@ -53,19 +54,23 @@ jobs:
             RABBITMQ_URL=${{ secrets.RABBITMQ_URL }}
             EOF
 
-            # Stop containers first
-            docker compose down --remove-orphans
+            # Check if service code changed (needs rebuild)
+            # or only config files changed (just restart)
+            CODE_CHANGED=$(git diff --name-only $BEFORE $AFTER | grep -E '^(user-service|restaurant-service|order-service|notification-service|frontend)/' | wc -l)
 
-            # Prune AFTER containers stopped and BEFORE build
-            # Use --volumes=false to protect networks
-            docker container prune -f
-            docker image prune -f
+            if [ "$CODE_CHANGED" -gt "0" ]; then
+              echo "🔨 Service code changed - full rebuild needed"
+              docker compose down --remove-orphans
+              docker container prune -f
+              docker image prune -f
+              docker compose build
+              docker compose up -d
+            else
+              echo "⚡ Only config changed - quick restart (no rebuild)"
+              docker compose restart api-gateway
+            fi
 
-            # Build and start
-            docker compose build
-            docker compose up -d
-
-            sleep 15
+            sleep 10
             docker compose ps
             echo "✅ Done at $(date)"
             echo "🌐 http://${{ secrets.EC2_HOST }}"
