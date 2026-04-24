@@ -36,12 +36,15 @@ jobs:
           script: |
             echo "🚀 Deployment started at $(date)"
             df -h / | tail -1
+
             cd ~/food-ordering-app
 
+            # Pull latest code
             git fetch origin main
             git reset --hard origin/main
             echo "📌 Commit: $(git log --oneline -1)"
 
+            # Recreate .env
             cat > .env << EOF
             MONGO_URI_USERS=${{ secrets.MONGO_URI_USERS }}
             MONGO_URI_RESTAURANT=${{ secrets.MONGO_URI_RESTAURANT }}
@@ -50,9 +53,15 @@ jobs:
             RABBITMQ_URL=${{ secrets.RABBITMQ_URL }}
             EOF
 
+            # Stop containers first
             docker compose down --remove-orphans
-            docker system prune -f
 
+            # Prune AFTER containers stopped and BEFORE build
+            # Use --volumes=false to protect networks
+            docker container prune -f
+            docker image prune -f
+
+            # Build and start
             docker compose build
             docker compose up -d
 
