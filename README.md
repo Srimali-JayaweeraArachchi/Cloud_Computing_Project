@@ -209,7 +209,7 @@ upstream user_service {
 }
 ```
 
-**To scale a service horizontally**, add one line to nginx upstream — no other changes needed anywhere in the system.
+**To scale a service horizontally** add one line to nginx upstream — no other changes needed anywhere in the system.
 
 **Verify load balancing is working:**
 ```bash
